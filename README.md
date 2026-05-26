@@ -1,6 +1,6 @@
 # Opencode on Tauri
 
-A lightweight Tauri v2 desktop shell for [Opencode](https://opencode.ai). Unlike the official Electron desktop (which bundles the frontend and ships as pre-built installers), this one loads the Opencode SPA from a local backend server. It also supports native ARM64 compilation for Windows and can connect to an Opencode agent running inside WSL2 — something the official desktop cannot do.
+A lightweight Tauri v2 desktop shell for [Opencode](https://opencode.ai). Unlike the official Electron desktop (which bundles the frontend and ships as pre-built installers), this one loads the Opencode SPA from a local backend server. It also supports native ARM64 compilation for Windows and can connect to an Opencode agent running inside WSL2 with native Linux paths — the official desktop forces `\\wsl$` path translation with lower performance and compatibility.
 
 > **Note:** This project has been tested on Windows. Linux and macOS may work but are not guaranteed.
 
