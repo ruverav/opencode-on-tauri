@@ -42,33 +42,22 @@ npm run dev
 
 ## Building
 
-There are two ways to build, depending on whether you need a bundled installer or just the binary:
-
-### Binary only (via cargo)
-
-Builds just the executable — no installer bundle, no frontend bundling step.
+Compile from within `src-tauri/`:
 
 ```powershell
-# Windows ARM64 (from within src-tauri/)
-cd src-tauri
-cargo build --target aarch64-pc-windows-msvc --release
+# Windows x86-64
+cargo build --release
+
+# Windows ARM64 (e.g. Surface Pro, Snapdragon X)
+cargo build --release --target aarch64-pc-windows-msvc
+
+# Linux / macOS
+cargo build --release
 ```
 
-The output is at `src-tauri/target/aarch64-pc-windows-msvc/release/opencode-desktop.exe`. This is the minimal build and the fastest option.
+Output is at `target/release/opencode-desktop.exe` (or `target/aarch64-pc-windows-msvc/release/opencode-desktop.exe` for ARM64).
 
-### Binary + installer bundle (via tauri build)
-
-`tauri build` (invoked via `npm run build`) first compiles the Rust binary, then runs Tauri's bundler to produce platform installers (MSI on Windows, DMG on macOS, AppImage on Linux). See `tauri.conf.json` → `bundle.targets` to configure which formats to produce.
-
-```bash
-# From the project root
-npm run build
-
-# Or equivalently:
-npx tauri build
-```
-
-> Since `tauri.conf.json` currently has `"targets": []` (no bundler targets configured), `tauri build` behaves similarly to `cargo build` and produces only the binary.
+You can also build from the project root with `npm run build` (equivalent to `npx tauri build`), but no installer bundler targets are configured so it produces the same binary.
 
 ## Configuration
 
@@ -102,87 +91,6 @@ The app constructs the URL as `http://{OPENCODE_HOST}:{OPENCODE_PORT}`. If neith
 Because the desktop shell loads a remote HTTP origin instead of bundled frontend files, `src-tauri/capabilities/default.json` currently allows `http://*:*` so the Tauri window APIs remain available when `OPENCODE_HOST` and `OPENCODE_PORT` change.
 
 For locked-down deployments, narrow this pattern to the exact backend URL you intend to use.
-
-## Platform Targets
-
-Commands below assume `cargo build --release` from within `src-tauri/`. Substitute `npm run build` if you need bundler output.
-
-### Windows (ARM64)
-
-```powershell
-# From src-tauri/
-cargo build --target aarch64-pc-windows-msvc --release
-```
-
-Output: `target/aarch64-pc-windows-msvc/release/opencode-desktop.exe`
-
-### Windows (x86-64)
-
-```powershell
-# From src-tauri/
-cargo build --target x86_64-pc-windows-msvc --release
-```
-
-Output: `target/x86_64-pc-windows-msvc/release/opencode-desktop.exe`
-
-### Linux (x86-64)
-
-```bash
-# From src-tauri/
-cargo build --release
-```
-
-Output: `target/release/opencode-desktop`
-
-### Linux (ARM64)
-
-```bash
-rustup target add aarch64-unknown-linux-gnu
-cd src-tauri
-cargo build --target aarch64-unknown-linux-gnu --release
-```
-
-Output: `target/aarch64-unknown-linux-gnu/release/opencode-desktop`
-
-### macOS (x86-64 / Apple Silicon)
-
-```bash
-# From src-tauri/
-cargo build --release
-```
-
-Output: `target/release/opencode-desktop`
-
-## Project Structure
-
-```
-opencode-desktop/
-├── package.json              # npm scripts: tauri, dev, build
-├── dist/                     # Frontend build output (served by Tauri in production)
-├── src-tauri/
-│   ├── Cargo.toml            # Rust dependencies and metadata
-│   ├── tauri.conf.json       # Tauri configuration (build, bundle, security)
-│   ├── capabilities/
-│   │   └── default.json      # Permission capabilities (window controls)
-│   ├── icons/                # Application icons (all platforms + mobile)
-│   ├── inject.js             # Injects custom title bar buttons into the webview
-│   └── src/
-│       ├── lib.rs            # Core app: window creation, state persistence, Mica effect
-│       └── main.rs           # Entry point (calls lib::run)
-└── README.md
-```
-
-## Features
-
-- **Frameless window** (`decorations: false`) with custom injected title bar buttons
-- **Window state persistence** — saves and restores position and size across sessions
-- **DPI-aware** — saves/restores in logical coordinates, correctly handling display scale factors
-- **Debounced window-state writes** — avoids excessive disk writes while resizing or moving
-- **Safe restore fallback** — re-centers if the stored window position is no longer on any connected monitor
-- **Environment variable configuration** — no hardcoded backend URLs
-- **Windows Mica effect** — translucent acrylic background (Windows 11)
-- **Frontend-agnostic** — loads any web app from the configured backend URL
-- **MutationObserver-based injection** — custom title bar buttons survive SPA DOM navigation
 
 ## Capabilities
 
