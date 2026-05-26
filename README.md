@@ -92,6 +92,22 @@ Because the desktop shell loads a remote HTTP origin instead of bundled frontend
 
 For locked-down deployments, narrow this pattern to the exact backend URL you intend to use.
 
+## WSL2 setup
+
+The desktop shell needs the Opencode backend running in server mode. On WSL2, add this to your `~/.zshrc` (or `~/.bashrc`) to start it automatically when the distro launches:
+
+```bash
+# opencode
+export PATH=/home/ruben/.opencode/bin:$PATH
+if ! pgrep -f "opencode web" > /dev/null; then
+  nohup opencode web --hostname 0.0.0.0 --port 4096 > /dev/null 2>&1 &
+fi
+```
+
+This starts the Opencode web server in the background on `http://0.0.0.0:4096`. The desktop shell connects to it via `http://localhost:4096` (adjust `OPENCODE_HOST` / `OPENCODE_PORT` if you change the port).
+
+> **Note:** `--hostname 0.0.0.0` is required so Windows can reach the WSL2 server via `localhost`.
+
 ## Capabilities
 
 The app requests minimal Tauri permissions in `capabilities/default.json`:
